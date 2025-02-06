@@ -22,17 +22,110 @@ import { createStore } from "mipd";
 import { Label } from "~/components/ui/label";
 import { PROJECT_TITLE } from "~/lib/constants";
 
-function ExampleCard() {
+const QUESTIONS = [
+  {
+    question: "What's your ideal snack?",
+    answers: [
+      "🥕 Crunchy veggies",
+      "🍯 Sweet honey",
+      "🌰 Nutty treats",
+      "🍓 Fresh berries"
+    ],
+    correct: 2
+  },
+  {
+    question: "Favorite way to nap?",
+    answers: [
+      "🛌 Curled in a ball",
+      "🌳 On a tree branch",
+      "🛋️ Stretched out sunny spot", 
+      "💤 Anywhere, anytime"
+    ],
+    correct: 0
+  },
+  {
+    question: "Choose a superpower:",
+    answers: [
+      "🐇 Super speed",
+      "🦉 Night vision",
+      "🦔 Spiky defense",
+      "🐾 Silent paws"
+    ],
+    correct: 3
+  }
+];
+
+const RESULTS = [
+  { animal: "🐇 Bunny Buddy", desc: "Quick and curious!" },
+  { animal: "🐻❄️ Polar Pal", desc: "Strong but cuddly" },
+  { animal: "🦊 Foxy Friend", desc: "Sly but sweet" },
+  { animal: "🐨 Koala Companion", desc: "Chill and relaxed" }
+];
+
+function QuizCard() {
+  const [currentQuestion, setCurrentQuestion] = useState(0);
+  const [score, setScore] = useState(0);
+  const [showResult, setShowResult] = useState(false);
+
+  const handleAnswer = (selectedIndex: number) => {
+    if (selectedIndex === QUESTIONS[currentQuestion].correct) {
+      setScore(score + 1);
+    }
+
+    if (currentQuestion < QUESTIONS.length - 1) {
+      setCurrentQuestion(currentQuestion + 1);
+    } else {
+      setShowResult(true);
+    }
+  };
+
+  const resultIndex = Math.floor((score / QUESTIONS.length) * RESULTS.length);
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Welcome to the Frame Template</CardTitle>
+        <CardTitle>{showResult ? RESULTS[resultIndex].animal : `Question ${currentQuestion + 1}`}</CardTitle>
         <CardDescription>
-          This is an example card that you can customize or remove
+          {showResult ? RESULTS[resultIndex].desc : QUESTIONS[currentQuestion].question}
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <Label>Place content in a Card here.</Label>
+      <CardContent className="grid grid-cols-2 gap-2">
+        {showResult ? (
+          <div className="text-center">
+            <p className="text-xl mb-4">You scored {score}/{QUESTIONS.length}</p>
+            <button 
+              onClick={() => {
+                setCurrentQuestion(0);
+                setScore(0);
+                setShowResult(false);
+              }}
+              className="bg-purple-500 text-white px-4 py-2 rounded hover:bg-purple-600"
+            >
+              Try again
+            </button>
+          </div>
+        ) : (
+          QUESTIONS[currentQuestion].answers.map((answer, index) => (
+            <button
+              key={index}
+              onClick={() => handleAnswer(index)}
+              className="p-2 border rounded hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            >
+              {answer}
+            </button>
+          ))
+        )}
+        <div className="col-span-2 mt-4">
+          <div className="h-2 bg-gray-200 rounded">
+            <div 
+              className="h-2 bg-purple-500 rounded transition-all"
+              style={{ width: `${((currentQuestion + 1) / QUESTIONS.length) * 100}%` }}
+            />
+          </div>
+          <div className="text-sm text-gray-500 mt-1">
+            Progress: {currentQuestion + 1}/{QUESTIONS.length}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
@@ -140,7 +233,7 @@ export default function Frame() {
         <h1 className="text-2xl font-bold text-center mb-4 text-gray-700 dark:text-gray-300">
           {PROJECT_TITLE}
         </h1>
-        <ExampleCard />
+        <QuizCard />
       </div>
     </div>
   );
